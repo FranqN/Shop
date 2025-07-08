@@ -1,0 +1,4 @@
+id,name,category,quantity,buying_price,selling_price,barcode,image,date_added
+1,maize,unga,0,120.0,200.0,n/a,unga.jpeg,2025-07-03 17:54:14.138757
+2,Sugar,Sugar,48,100.0,250.0,N/a,1751565349443255455006089971453.jpg,2025-07-03 17:56:05.263759
+3,Rice,rice,0,120.0,250.0,666,rice.jpeg,2025-07-03 19:03:40.094208
