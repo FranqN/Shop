@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="text-2xl font-bold mb-6 text-green-700 dark:text-green-400">🛒 Make a Sale</h2>
+
+<!-- Barcode Scanner -->
+<div class="mb-4 max-w-md">
+  <label class="block text-sm font-medium mb-1">Scan Barcode</label>
+  <video id="scanner" class="w-full border rounded h-32 hidden"></video>
+  <button id="startScanner" class="mt-2 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+    🎥 Start Scanner
+  </button>
+  <p id="scanStatus" class="text-sm text-gray-500 mt-1">Scanner is inactive.</p>
+</div>
+
+<form method="POST" id="saleForm" class="space-y-4">
+  <div>
+    <label class="block text-sm font-medium mb-1">Select Product</label>
+    <select id="productSelect" name="barcode" required class="w-full text-black">
+      <option value="">-- Choose Product --</option>
+      {% for product in products %}
+        {% if product.quantity > 0 %}
+          <option value="{{ product.barcode }}"
+                  data-name="{{ product.name }}"
+                  data-price="{{ product.selling_price }}"
+                  data-stock="{{ product.quantity }}">
+            {{ product.name }} (Stock: {{ product.quantity }})
+          </option>
+        {% endif %}
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-medium mb-1">Price (KSh)</label>
+      <input type="number" id="price" name="price" step="0.01" min="0" required class="border p-2 rounded w-full bg-white text-black">
+    </div>
+    <div>
+      <label class="block text-sm font-medium mb-1">Quantity</label>
+      <input name="quantity" id="quantity" type="number" min="1" required class="border p-2 rounded w-full bg-white text-black">
+    </div>
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium mb-1">Payment Method</label>
+    <select id="paymentMethod" name="payment_method" class="w-full p-2 rounded border text-black" required>
+      <option value="Cash">Cash</option>
+      <option value="Mpesa">M-Pesa</option>
+    </select>
+  </div>
+
+  <div id="mpesaFields" class="hidden">
+    <label class="block text-sm font-medium mb-1 mt-2">M-Pesa Phone Number</label>
+    <input type="tel" name="mpesa_number" id="mpesaNumber" placeholder="07XXXXXXXX" class="border p-2 rounded w-full bg-white text-black" />
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium mb-1">Total (KSh)</label>
+    <input type="text" id="total" readonly class="border p-2 rounded w-full bg-white text-black">
+  </div>
+
+  <!-- Submit -->
+  <div class="flex gap-4">
+    <button class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+      ✅ Complete Sale
+    </button>
+    <button type="button" id="printReceipt" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+      🧾 Print Receipt
+    </button>
+  </div>
+</form>
+
+<!-- Receipt Preview -->
+<div id="receiptContainer" class="hidden mt-6 border p-4 rounded bg-white dark:bg-gray-900 text-black dark:text-white">
+  <h3 class="text-xl font-bold mb-2">🧾 Sale Receipt</h3>
+  <p><strong>Product:</strong> <span id="receiptProduct"></span></p>
+  <p><strong>Price:</strong> KSh <span id="receiptPrice"></span></p>
+  <p><strong>Quantity:</strong> <span id="receiptQuantity"></span></p>
+  <p><strong>Tax (8%):</strong> KSh <span id="receiptTax"></span></p>
+  <p><strong>Total:</strong> KSh <span id="receiptTotal"></span></p>
+  <p><strong>Payment:</strong> <span id="receiptPayment"></span></p>
+</div>
+
+<!-- Scripts -->
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+<script src="https://unpkg.com/@ericblade/quagga2@1.2.6/dist/quagga.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    new TomSelect('#productSelect');
+
+    const select = document.getElementById('productSelect');
+    const priceInput = document.getElementById('price');
+    const quantityInput = document.getElementById('quantity');
+    const totalInput = document.getElementById('total');
+    const paymentMethod = document.getElementById('paymentMethod');
+    const mpesaFields = document.getElementById('mpesaFields');
+    const printButton = document.getElementById('printReceipt');
+
+    const receiptProduct = document.getElementById('receiptProduct');
+    const receiptPrice = document.getElementById('receiptPrice');
+    const receiptQuantity = document.getElementById('receiptQuantity');
+    const receiptTax = document.getElementById('receiptTax');
+    const receiptTotal = document.getElementById('receiptTotal');
+    const receiptPayment = document.getElementById('receiptPayment');
+
+    function updateForm() {
+      const option = select.options[select.selectedIndex];
+      priceInput.value = option.getAttribute('data-price');
+      quantityInput.value = '';
+      quantityInput.max = option.getAttribute('data-stock');
+      calculateTotal();
+    }
+
+    function calculateTotal() {
+      const price = parseFloat(priceInput.value || 0);
+      const quantity = parseInt(quantityInput.value || 0);
+      const total = price * quantity;
+      totalInput.value = isNaN(total) ? '' : total.toFixed(2);
+    }
+
+    select.addEventListener('change', updateForm);
+    priceInput.addEventListener('input', calculateTotal);
+    quantityInput.addEventListener('input', calculateTotal);
+
+    paymentMethod.addEventListener('change', () => {
+      mpesaFields.classList.toggle('hidden', paymentMethod.value !== 'Mpesa');
+    });
+
+    printButton.addEventListener('click', () => {
+      const selected = select.options[select.selectedIndex];
+      const price = parseFloat(priceInput.value || 0);
+      const quantity = parseInt(quantityInput.value || 0);
+      const tax = price * quantity * 0.08;
+      const total = price * quantity;
+
+      receiptProduct.textContent = selected.getAttribute('data-name');
+      receiptPrice.textContent = price.toFixed(2);
+      receiptQuantity.textContent = quantity;
+      receiptTax.textContent = tax.toFixed(2);
+      receiptTotal.textContent = total.toFixed(2);
+      receiptPayment.textContent = paymentMethod.value;
+
+      document.getElementById('receiptContainer').classList.remove('hidden');
+      window.print();
+    });
+  });
+</script>
+{% endblock %}

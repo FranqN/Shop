@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="mt-6">
+    <h2 class="text-2xl font-semibold mb-4 text-gray-800">📦 All Products in Store</h2>
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border rounded shadow text-sm text-gray-700">
+            <thead class="bg-green-600 text-white">
+                <tr>
+                    <th class="py-2 px-4 text-left">Image</th>
+                    <th class="py-2 px-4 text-left">Name</th>
+                    <th class="py-2 px-4 text-left">Category</th>
+                    <th class="py-2 px-4 text-left">Stock</th>
+                    <th class="py-2 px-4 text-left">Buying Price</th>
+                    <th class="py-2 px-4 text-left">Selling Price</th>
+                    <th class="py-2 px-4 text-left">Barcode</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr class="border-t hover:bg-gray-100">
+                    <td class="py-2 px-4">
+                        {% if product.image %}
+                        <img src="{{ url_for('static', filename='images/' ~ product.image) }}" alt="{{ product.name }}" class="h-14 w-14 object-cover rounded">
+                        {% else %}
+                        <span class="text-gray-400 italic">No image</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-2 px-4 font-medium">{{ product.name }}</td>
+                    <td class="py-2 px-4">{{ product.category }}</td>
+                    <td class="py-2 px-4">{{ product.quantity }}</td>
+                    <td class="py-2 px-4">KSh {{ product.buying_price }}</td>
+                    <td class="py-2 px-4">KSh {{ product.selling_price }}</td>
+                    <td class="py-2 px-4">{{ product.barcode }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

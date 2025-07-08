@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="text-2xl font-bold mb-6 text-blue-700">📊 Sales Summary</h2>
+
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+  <div class="shadow rounded p-4 bg-white">
+    <h3 class="text-lg font-semibold text-black">Today</h3>
+    <p class="text-2xl text-black font-bold">KSh {{ sales_today }}</p>
+  </div>
+  <div class="shadow rounded p-4 bg-white">
+    <h3 class="text-lg font-semibold text-black">This Month</h3>
+    <p class="text-2xl text-black font-bold">KSh {{ sales_month }}</p>
+  </div>
+  <div class="shadow rounded p-4 bg-white">
+    <h3 class="text-lg font-semibold text-black">This Quarter</h3>
+    <p class="text-2xl text-black font-bold">KSh {{ sales_quarter }}</p>
+  </div>
+  <div class="shadow rounded p-4 bg-white">
+    <h3 class="text-lg font-semibold text-black">This Year</h3>
+    <p class="text-2xl text-black font-bold">KSh {{ sales_year }}</p>
+  </div>
+</div>
+
+<!-- Daily Sales Table -->
+<div class="mt-8 bg-white p-6 rounded shadow">
+  <h3 class="text-xl font-semibold mb-4 text-black">🕓 Today's Sales Breakdown</h3>
+  
+  <table class="min-w-full text-black border border-gray-200">
+    <thead class="bg-gray-100">
+      <tr>
+        <th class="py-2 px-4 border">Date</th>
+        <th class="py-2 px-4 border">Time</th>
+        <th class="py-2 px-4 border">Product</th>
+        <th class="py-2 px-4 border">Quantity</th>
+        <th class="py-2 px-4 border">Total (KSh)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set daily_total = 0 %}
+      {% for sale in recent_sales %}
+        {% if sale.timestamp.date() == now().date() %}
+          {% set daily_total = daily_total + sale.total_price %}
+          <tr class="bg-white border-b">
+            <td class="py-2 px-4">{{ sale.timestamp.strftime('%Y-%m-%d') }}</td>
+            <td class="py-2 px-4">{{ sale.timestamp.strftime('%I:%M %p') }}</td>
+            <td class="py-2 px-4">{{ sale.product.name }}</td>
+            <td class="py-2 px-4">{{ sale.quantity_sold }}</td>
+            <td class="py-2 px-4">KSh {{ "%.2f"|format(sale.total_price) }}</td>
+          </tr>
+        {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="mt-4 text-right font-bold text-lg text-green-700">
+    Total Sales Today: KSh {{ "%.2f"|format(daily_total) }}
+  </div>
+</div>
+
+{% endblock %}

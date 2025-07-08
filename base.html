@@ -1,0 +1,62 @@
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <title>DUKA YETU</title> <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Tom Select CSS -->
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet" />
+<!-- Navigation -->
+<nav class="bg-white shadow p-4 flex flex-wrap justify-between items-center">
+    <div class="text-xl font-bold text-green-600">DUKA YETU</div>
+
+    <div class="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4 text-sm mt-2 md:mt-0">
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('dashboard') }}" class="text-gray-700 hover:text-green-600">Dashboard</a>
+            <a href="{{ url_for('register_sale') }}" class="text-gray-700 hover:text-green-600">Make Sale</a>
+            <a href="{{ url_for('sales_summary') }}" class="text-gray-700 hover:text-green-600">Sales Summary</a>
+            {% if current_user.role in ['admin', 'owner'] %}
+                <a href="{{ url_for('add_product') }}" class="text-gray-700 hover:text-green-600">Add Product</a>
+                <a href="{{ url_for('all_products') }}" class="text-gray-700 hover:text-green-600">View Products</a>
+            {% endif %}
+            <span class="text-gray-600 px-2">👋 {{ current_user.username }} ({{ current_user.role|capitalize }})</span>
+            <span id="clock" class="font-mono text-sm text-blue-600"></span>
+            <a href="{{ url_for('logout') }}" class="text-red-600 hover:underline">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="text-blue-600 hover:underline">Login</a>
+        {% endif %}
+    </div>
+</nav>
+
+<!-- Flash messages -->
+<div class="max-w-5xl mx-auto mt-4 px-4">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-2 rounded">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<!-- Page Content -->
+<div class="max-w-5xl mx-auto mt-6 px-4">
+    {% block content %}{% endblock %}
+</div>
+
+<!-- Tom Select JS -->
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
+<!-- Real-Time Clock Script -->
+<script>
+    function updateClock() {
+        const clockElement = document.getElementById('clock');
+        const now = new Date();
+        const dateStr = now.toLocaleDateString();
+        const timeStr = now.toLocaleTimeString();
+        clockElement.textContent = `${dateStr} ${timeStr}`;
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();  // Initial call
+</script>
