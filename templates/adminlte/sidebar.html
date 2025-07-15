@@ -1,0 +1,51 @@
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+  <!-- Brand Logo -->
+  <a href="{{ url_for('dashboard') }}" class="brand-link">
+    <i class="fas fa-store-alt mx-2"></i>
+    <span class="brand-text font-weight-light">Duka Yetu</span>
+  </a>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <!-- Sidebar Menu -->
+    <nav class="mt-2">
+      <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+        <li class="nav-item">
+          <a href="{{ url_for('dashboard') }}" class="nav-link">
+            <i class="nav-icon fas fa-tachometer-alt"></i>
+            <p>Dashboard</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="{{ url_for('register_sale') }}" class="nav-link">
+            <i class="nav-icon fas fa-cash-register"></i>
+            <p>Make Sale</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="{{ url_for('sales_summary') }}" class="nav-link">
+            <i class="nav-icon fas fa-chart-line"></i>
+            <p>Sales Summary</p>
+          </a>
+        </li>
+
+        {% if current_user.role in ['admin', 'owner'] %}
+          <li class="nav-item">
+            <a href="{{ url_for('add_product') }}" class="nav-link">
+              <i class="nav-icon fas fa-plus-circle"></i>
+              <p>Add Product</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ url_for('all_products') }}" class="nav-link">
+              <i class="nav-icon fas fa-boxes"></i>
+              <p>View Products</p>
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+</aside>
