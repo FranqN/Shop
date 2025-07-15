@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="text-2xl font-bold mb-6 text-blue-700">📊 Sales Summary</h2>
+
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+  <div class="shadow rounded p-4 bg-white">
+    <h3 class="text-lg font-semibold text-black">Today</h3>
+    <p id="today-sales" class="text-2xl text-black font-bold">KSh {{ sales_today }}</p>
+  </div>
+  <div class="shadow rounded p-4 bg-white">
+    <h3 class="text-lg font-semibold text-black">This Month</h3>
+    <p class="text-2xl text-black font-bold">KSh {{ sales_month }}</p>
+  </div>
+  <div class="shadow rounded p-4 bg-white">
+    <h3 class="text-lg font-semibold text-black">This Quarter</h3>
+    <p class="text-2xl text-black font-bold">KSh {{ sales_quarter }}</p>
+  </div>
+  <div class="shadow rounded p-4 bg-white">
+    <h3 class="text-lg font-semibold text-black">This Year</h3>
+    <p class="text-2xl text-black font-bold">KSh {{ sales_year }}</p>
+  </div>
+</div>
+
+<!-- Daily Sales Table -->
+<div class="mt-8 bg-white p-6 rounded shadow">
+  <h3 class="text-xl font-semibold mb-4 text-black">
+    🕓 Today's Sales Breakdown
+    <span class="text-sm text-gray-500 float-right">Auto updating...</span>
+  </h3>
+
+  <table class="min-w-full text-black border border-gray-200">
+    <thead class="bg-gray-100">
+      <tr>
+        <th class="py-2 px-4 border">Time</th>
+        <th class="py-2 px-4 border">Product</th>
+        <th class="py-2 px-4 border">Quantity</th>
+        <th class="py-2 px-4 border">Total (KSh)</th>
+      </tr>
+    </thead>
+    <tbody id="sales-table-body">
+      {% for sale in recent_sales %}
+        <tr class="bg-white border-b">
+          <td class="py-2 px-4">{{ sale.timestamp.strftime('%I:%M %p') }}</td>
+          <td class="py-2 px-4">{{ sale.product.name }}</td>
+          <td class="py-2 px-4">{{ sale.quantity_sold }}</td>
+          <td class="py-2 px-4">KSh {{ "%.2f"|format(sale.total_price) }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="mt-4 text-right font-bold text-lg text-green-700">
+    Total Sales Today: <span id="daily-total">KSh {{ "%.2f"|format(sales_today) }}</span>
+  </div>
+</div>
+
+<!-- Realtime Fetch Script -->
+<script>
+  async function fetchSalesSummary() {
+    try {
+      const response = await fetch('/api/sales_summary');
+      const data = await response.json();
+
+      // Update Today total
+      document.getElementById('today-sales').textContent = `KSh ${data.sales_today.toFixed(2)}`;
+      document.getElementById('daily-total').textContent = `KSh ${data.sales_today.toFixed(2)}`;
+
+      // Update table
+      const tbody = document.getElementById('sales-table-body');
+      tbody.innerHTML = '';
+
+      data.recent_sales.forEach(sale => {
+        const row = `<tr class="bg-white border-b">
+          <td class="py-2 px-4">${sale.timestamp}</td>
+          <td class="py-2 px-4">${sale.product}</td>
+          <td class="py-2 px-4">${sale.quantity}</td>
+          <td class="py-2 px-4">KSh ${sale.total.toFixed(2)}</td>
+        </tr>`;
+        tbody.insertAdjacentHTML('beforeend', row);
+      });
+
+    } catch (error) {
+      console.error("❌ Failed to fetch sales summary:", error);
+    }
+  }
+
+  // Refresh every 5 seconds
+  setInterval(fetchSalesSummary, 5000);
+</script>
+
+{% endblock %}

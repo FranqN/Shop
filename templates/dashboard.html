@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+  <!-- Daily Sales -->
+  <div class="bg-white p-6 rounded shadow text-center">
+    <h3 class="text-lg font-bold text-gray-700">📅 Daily Sales</h3>
+    <p class="text-2xl text-green-600 font-semibold mt-2">
+      KSh {{ daily_sales if daily_sales else "0.00" }}
+    </p>
+  </div>
+
+  <!-- Monthly Sales -->
+  <div class="bg-white p-6 rounded shadow text-center">
+    <h3 class="text-lg font-bold text-gray-700">📆 Monthly Sales</h3>
+    <p class="text-2xl text-green-600 font-semibold mt-2">
+      KSh {{ monthly_sales if monthly_sales else "0.00" }}
+    </p>
+  </div>
+</div>
+
+<!-- Top Performing Products -->
+<div class="bg-white p-6 rounded shadow mb-8">
+  <h3 class="text-lg font-bold mb-4 text-gray-700">📈 Top Performing Products</h3>
+  {% if top_products %}
+    <ul class="list-disc pl-6 text-gray-700 space-y-1">
+      {% for name, total in top_products %}
+        <li>{{ name }} — {{ total }} sold</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-sm text-gray-500">No top-performing products yet.</p>
+  {% endif %}
+</div>
+
+<!-- Bottom Performing Products -->
+<div class="bg-white p-6 rounded shadow">
+  <h3 class="text-lg font-bold mb-4 text-gray-700">📉 Worst Performing Products</h3>
+  {% if bottom_products %}
+    <ul class="list-disc pl-6 text-gray-700 space-y-1">
+      {% for name, total in bottom_products %}
+        <li>{{ name }} — {{ total }} sold</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-sm text-gray-500">No underperforming products yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

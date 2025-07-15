@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-16 bg-white p-8 rounded shadow">
+    <h2 class="text-2xl font-semibold mb-6 text-center text-green-700">📝 Create an Account</h2>
+    
+    <form method="POST">
+        <!-- Username -->
+        <div class="mb-4">
+            <label class="block mb-1 font-semibold text-gray-700">Username</label>
+            <input name="username" required class="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter username" />
+        </div>
+
+        <!-- Password -->
+        <div class="mb-4">
+            <label class="block mb-1 font-semibold text-gray-700">Password</label>
+            <input name="password" type="password" required class="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter password" />
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="mb-4">
+            <label class="block mb-1 font-semibold text-gray-700">Confirm Password</label>
+            <input name="confirm_password" type="password" required class="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Confirm password" />
+        </div>
+
+        <!-- Role Selection -->
+        <div class="mb-6">
+            <label class="block mb-1 font-semibold text-gray-700">Select Role</label>
+            <select name="role" required class="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500 text-black">
+                <option value="">-- Choose Role --</option>
+                <option value="admin">Admin</option>
+                <option value="business_owner">Business Owner</option>
+                <option value="cashier">Cashier</option>
+            </select>
+        </div>
+
+        <!-- Submit -->
+        <button class="bg-green-600 text-white px-4 py-2 rounded w-full hover:bg-green-700 transition">Create Account</button>
+
+        <!-- Link to Login -->
+        <p class="mt-4 text-sm text-center text-gray-600">
+            Already have an account?
+            <a href="{{ url_for('login') }}" class="text-blue-600 hover:underline">Login</a>
+        </p>
+    </form>
+</div>
+{% endblock %}

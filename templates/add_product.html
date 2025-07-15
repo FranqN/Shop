@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="text-2xl font-bold mb-4">➕ Add New Product</h2>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="bg-green-100 text-green-800 p-3 rounded mb-4">
+      {% for msg in messages %}
+        <p>{{ msg }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<form method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <div>
+      <label class="block text-sm font-medium">Product Name</label>
+      <input name="name" class="border p-2 rounded w-full" required />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium">Category</label>
+      <input name="category" class="border p-2 rounded w-full" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium">Quantity</label>
+      <input name="quantity" type="number" class="border p-2 rounded w-full" required />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium">Unit of Measure</label>
+      <select name="unit" class="border p-2 rounded w-full" required>
+        <option value="pcs">Pieces</option>
+        <option value="kgs">Kilograms (kgs)</option>
+        <option value="litres">Litres</option>
+        <option value="bales">Bales</option>
+        <option value="packets">Packets</option>
+        <option value="pairs">Pairs</option>
+        <option value="dozens">Dozens</option>
+        <option value="cartons">Cartons</option>
+        <option value="sets">Sets</option>
+        <option value="rolls">Rolls</option>
+        <option value="others">Others</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium">Barcode</label>
+      <div class="flex gap-2">
+        <input name="barcode" id="barcode" class="border p-2 rounded w-full" required />
+        <button type="button" onclick="startScanner()" class="bg-green-600 text-white px-3 py-1 rounded">
+          📷 Scan
+        </button>
+        <button type="button" onclick="generateBarcode()" class="bg-yellow-500 text-white px-3 py-1 rounded">
+          🔄 Generate
+        </button>
+      </div>
+      <canvas id="barcode-preview" class="mt-2 hidden"></canvas>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium">Buying Price (KSh)</label>
+      <input name="buying_price" step="0.01" type="number" class="border p-2 rounded w-full" required />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium">Selling Price (KSh)</label>
+      <input name="selling_price" step="0.01" type="number" class="border p-2 rounded w-full" required />
+    </div>
+
+    <div class="md:col-span-2">
+      <label class="block text-sm font-medium">Product Image</label>
+      <input name="image" type="file" accept="image/*" class="border p-2 rounded w-full" required />
+    </div>
+
+    <div class="md:col-span-2 hidden" id="scanner-container">
+      <label class="block text-sm font-medium mt-2">Scan Barcode Below:</label>
+      <div class="text-sm text-gray-600 mb-1">📱 Point your phone camera at the barcode to scan</div>
+      <div id="scanner" class="w-full h-64 border rounded bg-gray-100"></div>
+      <button type="button" onclick="stopScanner()" class="mt-2 text-red-600 underline">🛑 Stop Scanner</button>
+    </div>
+  </div>
+
+  <button class="bg-blue-600 text-white px-6 py-2 rounded mt-4 hover:bg-blue-700">Add Product</button>
+</form>
+
+<!-- Barcode scanner script -->
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+<script>
+  let scannerInstance;
+
+  function startScanner() {
+    const scannerContainer = document.getElementById("scanner-container");
+    scannerContainer.classList.remove("hidden");
+
+    if (scannerInstance) return;
+
+    scannerInstance = new Html5Qrcode("scanner");
+
+    Html5Qrcode.getCameras().then(devices => {
+      if (devices && devices.length) {
+        const backCam = devices.find(device => device.label.toLowerCase().includes("back")) || devices[0];
+
+        scannerInstance.start(
+          backCam.id,
+          { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.5 },
+          decodedText => {
+            document.getElementById("barcode").value = decodedText;
+            stopScanner();
+          },
+          errorMessage => { }
+        ).catch(err => {
+          alert("Camera access failed: " + err);
+        });
+      } else {
+        alert("No cameras found.");
+      }
+    }).catch(err => {
+      alert("Camera error: " + err);
+    });
+  }
+
+  function stopScanner() {
+    if (scannerInstance) {
+      scannerInstance.stop().then(() => {
+        scannerInstance.clear();
+        scannerInstance = null;
+        document.getElementById("scanner-container").classList.add("hidden");
+      }).catch(err => {
+        console.error("Scanner stop failed:", err);
+      });
+    }
+  }
+
+  function generateBarcode() {
+    const generated = Math.floor(100000000000 + Math.random() * 900000000000).toString();
+
+    const input = document.getElementById("barcode");
+    input.value = generated;
+
+    const canvas = document.getElementById("barcode-preview");
+    JsBarcode(canvas, generated, {
+      format: "EAN13",
+      displayValue: true,
+      lineColor: "#000",
+      width: 2,
+      height: 50
+    });
+    canvas.classList.remove("hidden");
+  }
+</script>
+{% endblock %}

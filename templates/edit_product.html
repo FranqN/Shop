@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="text-2xl font-bold mb-4">✏️ Edit Product</h2>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="bg-green-100 text-green-800 p-3 rounded mb-4">
+      {% for msg in messages %}
+        <p>{{ msg }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<form method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <div>
+      <label class="block text-sm font-medium">Product Name</label>
+      <input name="name" class="border p-2 rounded w-full" value="{{ product.name }}" required />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium">Category</label>
+      <input name="category" class="border p-2 rounded w-full" value="{{ product.category }}" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium">Quantity</label>
+      <input name="quantity" type="number" class="border p-2 rounded w-full" value="{{ product.quantity }}" required />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium">Unit</label>
+      <select name="unit" class="border p-2 rounded w-full" required>
+        {% set units = ['pcs', 'kg', 'bale', 'pair', 'dozen', 'litre', 'packet', 'roll', 'crate'] %}
+        {% for u in units %}
+          <option value="{{ u }}" {% if product.unit == u %}selected{% endif %}>
+            {{ u | capitalize }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium">Buying Price (KSh)</label>
+      <input name="buying_price" step="0.01" type="number" class="border p-2 rounded w-full" value="{{ product.buying_price }}" required />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium">Selling Price (KSh)</label>
+      <input name="selling_price" step="0.01" type="number" class="border p-2 rounded w-full" value="{{ product.selling_price }}" required />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium">Barcode</label>
+      <input name="barcode" class="border p-2 rounded w-full" value="{{ product.barcode }}" required />
+    </div>
+
+    <div class="md:col-span-2">
+      <label class="block text-sm font-medium">Product Image (leave blank to keep existing)</label>
+      <input name="image" type="file" accept="image/*" class="border p-2 rounded w-full" />
+    </div>
+  </div>
+
+  <button class="bg-blue-600 text-white px-6 py-2 rounded mt-4 hover:bg-blue-700">Update Product</button>
+</form>
+{% endblock %}
